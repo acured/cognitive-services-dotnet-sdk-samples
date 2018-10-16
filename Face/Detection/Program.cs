@@ -114,41 +114,49 @@ namespace Detection
                 emotionValue = emotion.Anger;
                 emotionType = "Anger";
             }
+
             if (emotion.Contempt > emotionValue)
             {
                 emotionValue = emotion.Contempt;
                 emotionType = "Contempt";
             }
+
             if (emotion.Disgust > emotionValue)
             {
                 emotionValue = emotion.Disgust;
                 emotionType = "Disgust";
             }
+
             if (emotion.Fear > emotionValue)
             {
                 emotionValue = emotion.Fear;
                 emotionType = "Fear";
             }
+
             if (emotion.Happiness > emotionValue)
             {
                 emotionValue = emotion.Happiness;
                 emotionType = "Happiness";
             }
+
             if (emotion.Neutral > emotionValue)
             {
                 emotionValue = emotion.Neutral;
                 emotionType = "Neutral";
             }
+
             if (emotion.Sadness > emotionValue)
             {
                 emotionValue = emotion.Sadness;
                 emotionType = "Sadness";
             }
+
             if (emotion.Surprise > emotionValue)
             {
                 emotionValue = emotion.Surprise;
                 emotionType = "Surprise";
             }
+
             return $"{emotionType}";
         }
 
