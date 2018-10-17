@@ -15,7 +15,7 @@ namespace FindSimilar
             Endpoint = "ENTER YOUR ENDPOINT HERE"
         };
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             FindSimilar_in_FaceIds();
             //FindSimilar_in_FaceList();
