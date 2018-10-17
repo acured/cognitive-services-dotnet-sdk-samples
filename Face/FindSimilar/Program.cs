@@ -9,10 +9,10 @@ namespace FindSimilar
     public class Program
     {
         // Create a client.
-        static string _apiKey = "793315696cd04d5ab78232a792136610";
+        static string _apiKey = "ENTER YOUR KEY HERE";
         static IFaceClient _client = new FaceClient(new ApiKeyServiceClientCredentials(_apiKey))
         {
-            Endpoint = "https://westus.api.cognitive.microsoft.com"
+            Endpoint = "ENTER YOUR ENDPOINT HERE"
         };
 
         static void Main(string[] args)
