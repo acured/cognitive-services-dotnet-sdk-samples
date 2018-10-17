@@ -60,7 +60,7 @@ namespace Identify
 
             // Start to train the person group.
             await Client.PersonGroup.TrainAsync(GroupId);
-            // Wait until train completed
+            // Wait until train completed.
             while (true)
             {
                 await Task.Delay(1000);
@@ -156,7 +156,7 @@ namespace Identify
 
             // Start to train the large person group.
             await Client.LargePersonGroup.TrainAsync(GroupId);
-            // Wait until train completed
+            // Wait until train completed.
             while (true)
             {
                 await Task.Delay(1000);
