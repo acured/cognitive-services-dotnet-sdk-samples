@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
@@ -17,37 +18,37 @@ namespace Identify
 
         public static void Main(string[] args)
         {
-            Identify_in_PersonGroup();
-            Identify_in_LargePersonGroup();
+            Identify_in_PersonGroup().Wait();
+            Identify_in_LargePersonGroup().Wait();
             Console.ReadLine();
         }
 
-        public static async void Identify_in_PersonGroup() 
+        public static async Task Identify_in_PersonGroup() 
         {
             List<string> targetImageFileNames =
-                new List<string> { "Family1-Dad1.jpg", "Family1-Dad2.jpg", "Family1-Dad3.jpg" };
-            string sourceImageFileName = "Family1-Dad1.jpg";
+                new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
+            string sourceImageFileName = "identification1.jpg";
 
             // Create a person group.
             string GroupId = Guid.NewGuid().ToString();
             Console.WriteLine($"Create a person group ({GroupId}) {Environment.NewLine}");
             await Client.PersonGroup.CreateAsync(GroupId, GroupId);
 
-            // Create a person group person.
-            Person p = new Person();
-            p.Name = "Dad";
-            p.UserData = "Person for sample";
-            Console.WriteLine($"Create a person group person '{p.Name}' {Environment.NewLine}");
-            p.PersonId = (await Client.PersonGroupPerson.CreateAsync(GroupId, p.Name)).PersonId;
-
             foreach (var targetImageFileName in targetImageFileNames) 
             { 
                 // Read image file. 
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open)) 
                 {
+                    // Create a person group person.
+                    Person p = new Person();
+                    p.Name = targetImageFileName;
+                    p.UserData = "Person for sample";
+                    Console.WriteLine($"Create a person group person '{p.Name}'");
+                    p.PersonId = (await Client.PersonGroupPerson.CreateAsync(GroupId, p.Name)).PersonId;
+
                     // Add face to the person group.
-                    Console.WriteLine($"Add faces to the person group from image `{targetImageFileName}`.");
-                    PersistedFace faces = Client.PersonGroupPerson.AddFaceFromStreamAsync(GroupId, p.PersonId, stream, targetImageFileName).Result; 
+                    Console.WriteLine($"Add faces to the person group from image `{targetImageFileName}`. {Environment.NewLine}");
+                    PersistedFace faces = await Client.PersonGroupPerson.AddFaceFromStreamAsync(GroupId, p.PersonId, stream, targetImageFileName); 
 
                     if (faces == null) 
                     { 
@@ -59,13 +60,25 @@ namespace Identify
 
             // Start to train the person group.
             await Client.PersonGroup.TrainAsync(GroupId);
+            // Wait until train completed
+            while (true)
+            {
+                await Task.Delay(1000);
+                var status = await Client.PersonGroup.GetTrainingStatusAsync(GroupId);
+                Console.WriteLine($"Response: Success. Group \"{GroupId}' training process is {status.Status}");
+
+                if (status.Status != TrainingStatusType.Running)
+                {
+                    break;
+                }
+            }
 
             List<Guid> faceIds = new List<Guid>();
             // Read image file. 
             using (FileStream stream = new FileStream(Path.Combine("Images", sourceImageFileName), FileMode.Open)) 
             { 
                 // Detect faces from image stream. 
-                IList<DetectedFace> detectedFaces = Client.Face.DetectWithStreamAsync(stream).Result; 
+                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream); 
                 if (detectedFaces == null || detectedFaces.Count == 0) 
                 { 
                     Console.WriteLine($"[Error] No face detected from image `{sourceImageFileName}`."); 
@@ -80,15 +93,23 @@ namespace Identify
                 }
 
                 // Add detected faceId to faceIds.
-                faceIds.Add(detectedFaces[0].FaceId.Value);                
+                foreach (var face in detectedFaces)
+                {
+                    faceIds.Add(face.FaceId.Value);
+                }
             }
 
             // Identify example for get person from the person group with candidate confidence. 
-            var identifyResults = Client.Face.IdentifyAsync(faceIds, GroupId).Result;
+            var identifyResults = await Client.Face.IdentifyAsync(faceIds, GroupId);
+            if (identifyResults == null)
+            {
+                Console.WriteLine($"No people found in the group the same as the {sourceImageFileName}.");
+                return;
+            }
             foreach (var identifyResult in identifyResults)
             {
                 Person person = await Client.PersonGroupPerson.GetAsync(GroupId, identifyResult.Candidates[0].PersonId);                
-                Console.WriteLine($"Person from {sourceImageFileName} & group person '{person.Name}' are of the same (Positive) person, confidence: {identifyResult.Candidates[0].Confidence}."); 
+                Console.WriteLine($"Person from {sourceImageFileName} & group person '{person.Name}' are of the same (Positive) person, confidence: {identifyResult.Candidates[0].Confidence}.");
             }
 
             // Delete the person group.
@@ -98,32 +119,32 @@ namespace Identify
             Console.WriteLine("\nPress ENTER to exit."); 
         }
 
-        public static async void Identify_in_LargePersonGroup()
+        public static async Task Identify_in_LargePersonGroup()
         {
             List<string> targetImageFileNames =
-                new List<string> { "Family1-Dad1.jpg", "Family1-Dad2.jpg", "Family1-Dad3.jpg" };
-            string sourceImageFileName = "Family1-Dad1.jpg";
+                new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
+            string sourceImageFileName = "identification1.jpg";
 
             // Create a large person group.
             string GroupId = Guid.NewGuid().ToString();
             Console.WriteLine($"Create a large person group ({GroupId}) {Environment.NewLine}");
             await Client.LargePersonGroup.CreateAsync(GroupId, GroupId);
 
-            // Create a large person group person.
-            Person p = new Person();
-            p.Name = "Dad";
-            p.UserData = "Person for sample";
-            Console.WriteLine($"Create a large person group person '{p.Name}' {Environment.NewLine}");
-            p.PersonId = (await Client.LargePersonGroupPerson.CreateAsync(GroupId, p.Name)).PersonId;
-
             foreach (var targetImageFileName in targetImageFileNames)
             {
                 // Read image file. 
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
                 {
+                    // Create a person group person.
+                    Person p = new Person();
+                    p.Name = targetImageFileName;
+                    p.UserData = "Person for sample";
+                    Console.WriteLine($"Create a person group person '{p.Name}'");
+                    p.PersonId = (await Client.LargePersonGroupPerson.CreateAsync(GroupId, p.Name)).PersonId;
+
                     // Add face to the large person group.
-                    Console.WriteLine($"Add faces to the large person group from image `{targetImageFileName}`.");
-                    PersistedFace faces = Client.LargePersonGroupPerson.AddFaceFromStreamAsync(GroupId, p.PersonId, stream, targetImageFileName).Result;
+                    Console.WriteLine($"Add faces to the large person group from image `{targetImageFileName}`.{Environment.NewLine}");
+                    PersistedFace faces = await Client.LargePersonGroupPerson.AddFaceFromStreamAsync(GroupId, p.PersonId, stream, targetImageFileName);
 
                     if (faces == null)
                     {
@@ -135,13 +156,25 @@ namespace Identify
 
             // Start to train the large person group.
             await Client.LargePersonGroup.TrainAsync(GroupId);
+            // Wait until train completed
+            while (true)
+            {
+                await Task.Delay(1000);
+                var status = await Client.LargePersonGroup.GetTrainingStatusAsync(GroupId);
+                Console.WriteLine($"Response: Success. Group \"{GroupId}' training process is {status.Status}");
+
+                if (status.Status != TrainingStatusType.Running)
+                {
+                    break;
+                }
+            }
 
             List<Guid> faceIds = new List<Guid>();
             // Read image file. 
             using (FileStream stream = new FileStream(Path.Combine("Images", sourceImageFileName), FileMode.Open))
             {
                 // Detect faces from image stream. 
-                IList<DetectedFace> detectedFaces = Client.Face.DetectWithStreamAsync(stream).Result;
+                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream);
                 if (detectedFaces == null || detectedFaces.Count == 0)
                 {
                     Console.WriteLine($"[Error] No face detected from image `{sourceImageFileName}`.");
@@ -156,15 +189,23 @@ namespace Identify
                 }
 
                 // Add detected faceId to faceIds.
-                faceIds.Add(detectedFaces[0].FaceId.Value);
+                foreach (var face in detectedFaces)
+                {
+                    faceIds.Add(face.FaceId.Value);
+                }
             }
 
-            // Identify example for get person from the large person group with candidate confidence. 
-            var identifyResults = Client.Face.IdentifyAsync(faceIds, null, GroupId).Result;
+            // Identify example for get person from the person group with candidate confidence. 
+            var identifyResults = await Client.Face.IdentifyAsync(faceIds, null, GroupId);
+            if (identifyResults == null)
+            {
+                Console.WriteLine($"No people found in the group the same as the {sourceImageFileName}.");
+                return;
+            }
             foreach (var identifyResult in identifyResults)
             {
                 Person person = await Client.LargePersonGroupPerson.GetAsync(GroupId, identifyResult.Candidates[0].PersonId);
-                Console.WriteLine($"Person from {sourceImageFileName} & large person group person '{person.Name}' are of the same (Positive) person, confidence: {identifyResult.Candidates[0].Confidence}.");
+                Console.WriteLine($"Person from {sourceImageFileName} & group person '{person.Name}' are of the same (Positive) person, confidence: {identifyResult.Candidates[0].Confidence}.");
             }
 
             // Delete the person group.
