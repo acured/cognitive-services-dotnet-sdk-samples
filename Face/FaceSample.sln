@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VerifyFaceToFace", "VerifyFaceToFace\VerifyFaceToFace.csproj", "{9090CBD6-25BE-4C58-A747-814D2E566956}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detection", "Detection\Detection.csproj", "{CCE5391D-995F-4615-BE21-41BDA2DBD619}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{9090CBD6-25BE-4C58-A747-814D2E566956}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9090CBD6-25BE-4C58-A747-814D2E566956}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9090CBD6-25BE-4C58-A747-814D2E566956}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE5391D-995F-4615-BE21-41BDA2DBD619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE5391D-995F-4615-BE21-41BDA2DBD619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE5391D-995F-4615-BE21-41BDA2DBD619}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE5391D-995F-4615-BE21-41BDA2DBD619}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
