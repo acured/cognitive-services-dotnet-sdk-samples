@@ -9,15 +9,10 @@ namespace Verify
     public class Program
     {
         // Create a client. 
-        //static string ApiKey  = "ENTER YOUR KEY HERE";
-        //static IFaceClient Client  = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
-        //{
-        //    Endpoint = "ENTER YOUR ENDPOINT HERE"
-        //};
-        static string ApiKey = "793315696cd04d5ab78232a792136610";
+        static string ApiKey = "ENTER YOUR KEY HERE";
         static IFaceClient Client = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
         {
-            Endpoint = "https://westus.api.cognitive.microsoft.com"
+            Endpoint = "ENTER YOUR ENDPOINT HERE"
         };
 
         public static void Main(string[] args)
