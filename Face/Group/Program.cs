@@ -18,7 +18,7 @@ namespace Group
             };
 
             List<string> imageFileNames =
-                new List<string> { "Family1-Dad1.jpg", "Family1-Dad2.jpg", "Family1-Son1.jpg" };
+                new List<string> { "Family1-Dad1.jpg", "Family1-Dad2.jpg", "Family3-Lady1.jpg", "Family1-Daughter1.jpg" , "Family1-Daughter2.jpg", "Family1-Daughter3.jpg" };
             Dictionary<string, string> Faces = new Dictionary<string, string>();
             List<Guid> faceIds = new List<Guid>();
 
