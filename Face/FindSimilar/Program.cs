@@ -176,7 +176,7 @@ namespace FindSimilar
             // Start to train the large face list.
             Console.WriteLine($"Train large face list {largeFaceListId} {Environment.NewLine}");
             await Client.LargeFaceList.TrainAsync(largeFaceListId);
-            // Wait until train completed 
+            // Wait until train completed.
             while (true)
             {
                 await Task.Delay(1000);
