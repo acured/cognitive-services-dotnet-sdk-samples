@@ -11,10 +11,10 @@ namespace Group
         public static void Main(string[] args)
         {
             // Create a client.
-            string apiKey = "793315696cd04d5ab78232a792136610";
+            string apiKey = "ENTER YOUR KEY HERE";
             IFaceClient client = new FaceClient(new ApiKeyServiceClientCredentials(apiKey))
             {
-                Endpoint = "https://westus.api.cognitive.microsoft.com"
+                Endpoint = "ENTER YOUR ENDPOINT HERE"
             };
 
             List<string> imageFileNames =
@@ -42,16 +42,16 @@ namespace Group
                         return;
                     }
 
-                    //add to faceids
+                    // Add detected faceId to faceIds and Faces.
                     faceIds.Add(detectedFaces[0].FaceId.Value);
                     Faces.Add(detectedFaces[0].FaceId.ToString(), imageFileName);
                 }
             }
             
-            // Call grouping, the grouping result is a group collection, each group contains similar faces
+            // Call grouping, the grouping result is a group collection, each group contains similar faces.
             var groupRes = client.Face.GroupAsync(faceIds).Result;
 
-            //grouping results
+            // Grouping results.
             foreach (var g in groupRes.Groups)
             {
                 Console.Write($"{Environment.NewLine}Find group face ");
@@ -62,8 +62,6 @@ namespace Group
             }
 
             // MessyGroup contains all faces which are not similar to any other faces.
-            // Take an extreme case for example:
-            // On grouping faces which are not similar to any other faces, the grouping result will contains only one messy group
             if (groupRes.MessyGroup.Count > 0)
             {
                 Console.Write($"{Environment.NewLine}Find messy group face ");
