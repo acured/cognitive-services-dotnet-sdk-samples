@@ -10,23 +10,17 @@ namespace Identify
     public class Program
     {
         // Create a client.
-        //static string ApiKey = "ENTER YOUR KEY HERE";
+        static string ApiKey = "ENTER YOUR KEY HERE";
 
-        //static IFaceClient Client = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
-        //{
-        //    Endpoint = "ENTER YOUR ENDPOINT HERE"
-        //};
+        static IFaceClient Client = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
+        {
+            Endpoint = "ENTER YOUR ENDPOINT HERE"
+        };
 
         public static List<string> TargetImageFileNames =
             new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
 
         public static string SourceImageFileName = "identification1.jpg";
-
-        static string ApiKey = "793315696cd04d5ab78232a792136610";
-        static IFaceClient Client = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
-        {
-            Endpoint = "https://westus.api.cognitive.microsoft.com"
-        };
 
         public static void Main(string[] args)
         {
