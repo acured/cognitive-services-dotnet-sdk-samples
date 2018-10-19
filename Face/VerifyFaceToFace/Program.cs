@@ -8,7 +8,7 @@ namespace VerifyFaceToFace
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async void Main(string[] args)
         {
             // Create a client.
             string apiKey = "ENTER YOUR KEY HERE";
@@ -27,7 +27,7 @@ namespace VerifyFaceToFace
                 using (FileStream stream = new FileStream(Path.Combine("Images", imageFileName), FileMode.Open))
                 {
                     // Detect faces from image stream.
-                    IList<DetectedFace> detectedFaces = client.Face.DetectWithStreamAsync(stream).Result;
+                    IList<DetectedFace> detectedFaces = await client.Face.DetectWithStreamAsync(stream);
                     if (detectedFaces == null || detectedFaces.Count == 0)
                     {
                         Console.WriteLine($"[Error] No face detected from image `{imageFileName}`.");
@@ -46,14 +46,14 @@ namespace VerifyFaceToFace
             }
 
             // Verification example for faces of the same person.
-            VerifyResult verifyResult1 = client.Face.VerifyFaceToFaceAsync(faceIds[0], faceIds[1]).Result;
+            VerifyResult verifyResult1 = await client.Face.VerifyFaceToFaceAsync(faceIds[0], faceIds[1]);
             Console.WriteLine(
                 verifyResult1.IsIdentical
                     ? $"Faces from {imageFileNames[0]} & {imageFileNames[1]} are of the same (Positive) person, similarity confidence: {verifyResult1.Confidence}."
                     : $"Faces from {imageFileNames[0]} & {imageFileNames[1]} are of different (Negative) persons, similarity confidence: {verifyResult1.Confidence}.");
 
             // Verification example for faces of different persons.
-            VerifyResult verifyResult2 = client.Face.VerifyFaceToFaceAsync(faceIds[1], faceIds[2]).Result;
+            VerifyResult verifyResult2 = await client.Face.VerifyFaceToFaceAsync(faceIds[1], faceIds[2]);
             Console.WriteLine(
                 verifyResult2.IsIdentical
                     ? $"Faces from {imageFileNames[1]} & {imageFileNames[2]} are of the same (Negative) person, similarity confidence: {verifyResult2.Confidence}."

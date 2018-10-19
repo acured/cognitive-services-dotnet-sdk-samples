@@ -8,7 +8,7 @@ namespace Detection
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async void Main(string[] args)
         {
             // Create a client.
             string apiKey = "ENTER YOUR KEY HERE";
@@ -26,7 +26,7 @@ namespace Detection
                 using (FileStream stream = new FileStream(Path.Combine("Images", imageFileName), FileMode.Open))
                 {
                     // Detect faces with all attributes from image stream.
-                    IList<DetectedFace> detectedFaces = client.Face.DetectWithStreamAsync(
+                    IList<DetectedFace> detectedFaces = await client.Face.DetectWithStreamAsync(
                         stream,
                         false,
                         true,
@@ -46,7 +46,7 @@ namespace Detection
                             FaceAttributeType.Noise,
                             FaceAttributeType.Occlusion,
                             FaceAttributeType.Smile
-                        }).Result;
+                        });
 
                     if (detectedFaces == null || detectedFaces.Count == 0)
                     {

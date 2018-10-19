@@ -17,6 +17,11 @@ namespace FindSimilar
             Endpoint = "ENTER YOUR ENDPOINT HERE"
         };
 
+        public static List<string> TargetImageFileNames =
+            new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
+
+        public static string SourceImageFileName = "findsimilar.jpg";
+
         public static void Main(string[] args)
         {
             FindSimilar_in_FaceIds().Wait();
@@ -27,17 +32,14 @@ namespace FindSimilar
 
         public static async Task FindSimilar_in_FaceIds()
         {
-            List<string> targetImageFileNames =
-                new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
-            IList<Guid?> faceIds = new List<Guid?>();
-
-            foreach (var targetImageFileName in targetImageFileNames)
+            IList<Guid?> targetFaceIds = new List<Guid?>();
+            foreach (var targetImageFileName in TargetImageFileNames)
             {
                 // Read image file.
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
                 {
                     // Detect faces from image stream.
-                    IList<DetectedFace> detectedFaces = Client.Face.DetectWithStreamAsync(stream).Result;
+                    IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream);
                     if (detectedFaces == null || detectedFaces.Count == 0)
                     {
                         Console.WriteLine($"[Error] No face detected from image `{targetImageFileName}`.");
@@ -51,23 +53,43 @@ namespace FindSimilar
                         return;
                     }
 
-                    // Add detected faceId to faceIds.
-                    faceIds.Add(detectedFaces[0].FaceId);
+                    // Add detected faceId to targetFaceIds.
+                    targetFaceIds.Add(detectedFaces[0].FaceId);
                 }
             }
 
-            // Find similar example for find similar faces from faceIds with similar confidence.
-            IList<SimilarFace> similarResults = Client.Face.FindSimilarAsync(faceIds[0].Value, null, null, faceIds).Result;
-            if (similarResults.Count == 0)
+            // Read image file.
+            using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName), FileMode.Open))
             {
-                Console.WriteLine($"Not found the same with `{faceIds[0].Value}` from similar result.");
-            }
-            foreach (var similarResult in similarResults)
-            {
-                Console.WriteLine(
-                    similarResult.Confidence>0.5
-                        ? $"Faces from {faceIds[0].Value} & {similarResult.FaceId} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}."
-                        : $"Faces from {faceIds[0].Value} & {similarResult.FaceId} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
+                // Detect faces from image stream.
+                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream);
+                if (detectedFaces == null || detectedFaces.Count == 0)
+                {
+                    Console.WriteLine($"[Error] No face detected from image `{SourceImageFileName}`.");
+                    return;
+                }
+
+                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName}`.");
+                if (detectedFaces[0].FaceId == null)
+                {
+                    Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for verification purpose.");
+                    return;
+                }
+
+                // Find similar example for find similar faces from targetFaceIds with similar confidence.
+                IList<SimilarFace> similarResults = await Client.Face.FindSimilarAsync(detectedFaces[0].FaceId.Value, null, null, targetFaceIds);
+                if (similarResults.Count == 0)
+                {
+                    Console.WriteLine($"Not found the same with `{detectedFaces[0].FaceId}` from similar result.{Environment.NewLine}");
+                }
+
+                foreach (var similarResult in similarResults)
+                {
+                    Console.WriteLine(
+                        similarResult.Confidence > 0.5
+                            ? $"Faces from {detectedFaces[0].FaceId} & {similarResult.FaceId} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}."
+                            : $"Faces from {detectedFaces[0].FaceId} & {similarResult.FaceId} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
+                }
             }
 
             Console.WriteLine("\nPress ENTER to exit.");
@@ -75,16 +97,12 @@ namespace FindSimilar
 
         public static async Task FindSimilar_in_FaceList()
         {
-            List<string> targetImageFileNames =
-                            new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
-            string sourceImageFileName = "findsimilar.jpg";
-
             // Create a face list.
             string faceListId = Guid.NewGuid().ToString();
             Console.WriteLine($"Create FaceList {faceListId} {Environment.NewLine}");
             await Client.FaceList.CreateAsync(faceListId, faceListId, "face list for sample");
 
-            foreach (var targetImageFileName in targetImageFileNames)
+            foreach (var targetImageFileName in TargetImageFileNames)
             {
                 // Read image file.
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
@@ -101,20 +119,25 @@ namespace FindSimilar
             }
 
             // Get persisted faces.
-            List<PersistedFace> persistedFaces = Client.FaceList.GetAsync(faceListId).Result.PersistedFaces as List<PersistedFace>;
+            List<PersistedFace> persistedFaces = (await Client.FaceList.GetAsync(faceListId)).PersistedFaces as List<PersistedFace>;
+            if (persistedFaces == null)
+            {
+                Console.WriteLine($"[Error] Persisted face not found in face list \"{faceListId}'.");
+                return;
+            }
 
             // Read image file.
-            using (FileStream stream = new FileStream(Path.Combine("Images", sourceImageFileName), FileMode.Open))
+            using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName), FileMode.Open))
             {
                 // Detect faces from image stream.
-                IList<DetectedFace> detectedFaces = Client.Face.DetectWithStreamAsync(stream).Result;
+                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream);
                 if (detectedFaces == null || detectedFaces.Count == 0)
                 {
-                    Console.WriteLine($"[Error] No face detected from image `{sourceImageFileName}`.");
+                    Console.WriteLine($"[Error] No face detected from image `{SourceImageFileName}`.");
                     return;
                 }
 
-                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{sourceImageFileName}`.");
+                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName}`.");
                 if (detectedFaces[0].FaceId == null)
                 {
                     Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for verification purpose.");
@@ -122,20 +145,20 @@ namespace FindSimilar
                 }
 
                 // Find similar example for find similar faces from the face list with similar confidence.
-                var similarResults = Client.Face.FindSimilarAsync(detectedFaces[0].FaceId.Value, faceListId).Result;
+                var similarResults = await Client.Face.FindSimilarAsync(detectedFaces[0].FaceId.Value, faceListId);
                 foreach (var similarResult in similarResults)
                 {
                     PersistedFace pf = persistedFaces.Find(p => p.PersistedFaceId == similarResult.PersistedFaceId);
                     if (pf == null)
                     {
-                        Console.WriteLine("Persisted face not found in similar result.");
+                        Console.WriteLine($"Persisted face not found in similar result.{Environment.NewLine}");
                         continue;
                     }
-                    Console.WriteLine($"Faces from {sourceImageFileName} & {pf.UserData} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}.");
+                   
                     Console.WriteLine(
                         similarResult.Confidence > 0.5
-                            ? $"Faces from {sourceImageFileName} & {pf.UserData} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}."
-                            : $"Faces from {sourceImageFileName} & {pf.UserData} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
+                            ? $"Faces from {SourceImageFileName} & {pf.UserData} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}."
+                            : $"Faces from {SourceImageFileName} & {pf.UserData} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
                 }
             }
 
@@ -148,16 +171,12 @@ namespace FindSimilar
 
         public static async Task FindSimilar_in_LargeFaceList()
         {
-            List<string> targetImageFileNames =
-                new List<string> { "Family1-Dad1.jpg", "Family1-Daughter1.jpg", "Family1-Mom1.jpg", "Family1-Son1.jpg", "Family2-Lady1.jpg", "Family2-Man1.jpg", "Family3-Lady1.jpg", "Family3-Man1.jpg" };
-            string sourceImageFileName = "findsimilar.jpg";
-
             // Create a large face list.
             string largeFaceListId = Guid.NewGuid().ToString();
             Console.WriteLine($"Create large face list {largeFaceListId} {Environment.NewLine}");
             await Client.LargeFaceList.CreateAsync(largeFaceListId, largeFaceListId, "large face list for sample");
 
-            foreach (var targetImageFileName in targetImageFileNames)
+            foreach (var targetImageFileName in TargetImageFileNames)
             {
                 // Read image file.
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
@@ -176,7 +195,8 @@ namespace FindSimilar
             // Start to train the large face list.
             Console.WriteLine($"Train large face list {largeFaceListId} {Environment.NewLine}");
             await Client.LargeFaceList.TrainAsync(largeFaceListId);
-            // Wait until train completed.
+
+            // Wait until the training is completed.
             while (true)
             {
                 await Task.Delay(1000);
@@ -189,20 +209,25 @@ namespace FindSimilar
             }
 
             // Get persisted faces.
-            List<PersistedFace> persistedFaces = Client.LargeFaceList.ListFacesAsync(largeFaceListId).Result as List<PersistedFace>;
+            List<PersistedFace> persistedFaces = (await Client.LargeFaceList.ListFacesAsync(largeFaceListId)) as List<PersistedFace>;
+            if (persistedFaces == null)
+            {
+                Console.WriteLine($"[Error] Persisted face not found in group \"{largeFaceListId}'.");
+                return;
+            }
 
             // Read image file.
-            using (FileStream stream = new FileStream(Path.Combine("Images", sourceImageFileName), FileMode.Open))
+            using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName), FileMode.Open))
             {
                 // Detect faces from image stream.
-                IList<DetectedFace> detectedFaces = Client.Face.DetectWithStreamAsync(stream).Result;
+                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream);
                 if (detectedFaces == null || detectedFaces.Count == 0)
                 {
-                    Console.WriteLine($"[Error] No face detected from image `{sourceImageFileName}`.");
+                    Console.WriteLine($"[Error] No face detected from image `{SourceImageFileName}`.");
                     return;
                 }
 
-                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{sourceImageFileName}`.");
+                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName}`.");
                 if (detectedFaces[0].FaceId == null)
                 {
                     Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for verification purpose.");
@@ -210,20 +235,20 @@ namespace FindSimilar
                 }
 
                 // Find similar example for find similar faces from the large face list with similar confidence.
-                var similarResults = Client.Face.FindSimilarAsync(detectedFaces[0].FaceId.Value, null, largeFaceListId).Result;
+                var similarResults = await Client.Face.FindSimilarAsync(detectedFaces[0].FaceId.Value, null, largeFaceListId);
                 foreach (var similarResult in similarResults)
                 {
                     PersistedFace pf = persistedFaces.Find(p => p.PersistedFaceId == similarResult.PersistedFaceId);
                     if (pf == null)
                     {
-                        Console.WriteLine("Persisted face not found in similar result.");
+                        Console.WriteLine($"Persisted face not found in similar result.{Environment.NewLine}");
                         continue;
                     }
-                    Console.WriteLine($"Faces from {sourceImageFileName} & {pf.UserData} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}.");
+                    
                     Console.WriteLine(
                         similarResult.Confidence > 0.5
-                            ? $"Faces from {sourceImageFileName} & {pf.UserData} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}."
-                            : $"Faces from {sourceImageFileName} & {pf.UserData} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
+                            ? $"Faces from {SourceImageFileName} & {pf.UserData} are of the same (Positive) person, similarity confidence: {similarResult.Confidence}."
+                            : $"Faces from {SourceImageFileName} & {pf.UserData} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
                 }
             }
 
