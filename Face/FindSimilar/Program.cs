@@ -151,7 +151,7 @@ namespace FindSimilar
                     PersistedFace pf = persistedFaces.Find(p => p.PersistedFaceId == similarResult.PersistedFaceId);
                     if (pf == null)
                     {
-                        Console.WriteLine($"Persisted face not found in similar result.{Environment.NewLine}");
+                        Console.WriteLine($"Persisted face not found in similar result.");
                         continue;
                     }
                    
@@ -241,7 +241,7 @@ namespace FindSimilar
                     PersistedFace pf = persistedFaces.Find(p => p.PersistedFaceId == similarResult.PersistedFaceId);
                     if (pf == null)
                     {
-                        Console.WriteLine($"Persisted face not found in similar result.{Environment.NewLine}");
+                        Console.WriteLine($"Persisted face not found in similar result.");
                         continue;
                     }
                     
