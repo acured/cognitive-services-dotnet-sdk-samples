@@ -27,6 +27,8 @@ namespace FindSimilar
             FindSimilar_in_FaceIds().Wait();
             FindSimilar_in_FaceList().Wait();
             FindSimilar_in_LargeFaceList().Wait();
+
+            Console.WriteLine("\nPress ENTER to exit.");
             Console.ReadLine();
         }
 
@@ -91,8 +93,6 @@ namespace FindSimilar
                             : $"Faces from {detectedFaces[0].FaceId} & {similarResult.FaceId} are of different (Negative) persons, similarity confidence: {similarResult.Confidence}.");
                 }
             }
-
-            Console.WriteLine("\nPress ENTER to exit.");
         }
 
         public static async Task FindSimilar_in_FaceList()
@@ -164,9 +164,7 @@ namespace FindSimilar
 
             // Delete the face list.
             await Client.FaceList.DeleteAsync(faceListId);
-            Console.WriteLine($"{Environment.NewLine}Delete FaceList {faceListId}");
-
-            Console.WriteLine("\nPress ENTER to exit.");
+            Console.WriteLine($"{Environment.NewLine}Delete FaceList {faceListId}{Environment.NewLine}");
         }
 
         public static async Task FindSimilar_in_LargeFaceList()
@@ -254,9 +252,7 @@ namespace FindSimilar
 
             // Delete the large face list.
             await Client.LargeFaceList.DeleteAsync(largeFaceListId);
-            Console.WriteLine($"{Environment.NewLine}Delete FaceList {largeFaceListId}");
-
-            Console.WriteLine("\nPress ENTER to exit.");
+            Console.WriteLine($"{Environment.NewLine}Delete FaceList {largeFaceListId}{Environment.NewLine}");
         }
     }
 }
