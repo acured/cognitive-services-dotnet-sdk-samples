@@ -106,13 +106,14 @@ namespace FindSimilar
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
                 {
                     // Add face to face list.
-                    Console.WriteLine($"Add faces to face list from image `{targetImageFileName}`.");
                     var faces = await Client.FaceList.AddFaceFromStreamAsync(faceListId, stream, targetImageFileName);
                     if (faces == null)
                     {
                         Console.WriteLine($"[Error] No face detected from image `{targetImageFileName}`.");
                         return;
                     }
+
+                    Console.WriteLine($"Face from image {targetImageFileName} is successfully added to the face list.");
                 }
             }
 
@@ -175,13 +176,14 @@ namespace FindSimilar
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
                 {
                     // Add face to the large face list.
-                    Console.WriteLine($"Add faces to large face list from image `{targetImageFileName}`.");
                     var faces = await Client.LargeFaceList.AddFaceFromStreamAsync(largeFaceListId, stream, targetImageFileName);
                     if (faces == null)
                     {
                         Console.WriteLine($"[Error] No face detected from image `{targetImageFileName}`.");
                         return;
                     }
+
+                    Console.WriteLine($"Face from image {targetImageFileName} is successfully added to the large face list.");
                 }
             }
 
