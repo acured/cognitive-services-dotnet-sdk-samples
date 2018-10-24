@@ -92,16 +92,22 @@
             }
 
             // Start to train the person group.
+            Console.WriteLine($"Train person group {GroupId}.");
             await client.PersonGroup.TrainAsync(GroupId);
 
             // Wait until the training is completed.
             while (true)
             {
                 await Task.Delay(1000);
-                var status = await client.PersonGroup.GetTrainingStatusAsync(GroupId);
-                Console.WriteLine($"Response: Success. Group \"{GroupId}' training process is {status.Status}");
-                if (status.Status != TrainingStatusType.Running)
+                var trainingStatus = await client.PersonGroup.GetTrainingStatusAsync(GroupId);
+                Console.WriteLine($"Training status is {trainingStatus.Status}.");
+                if (trainingStatus.Status != TrainingStatusType.Running)
                 {
+                    if (trainingStatus.Status == TrainingStatusType.Failed)
+                    {
+                        throw new Exception($"Training failed with message {trainingStatus.Message}.");
+                    }
+
                     break;
                 }
             }
@@ -162,16 +168,22 @@
             }
 
             // Start to train the large person group.
+            Console.WriteLine($"Train large person group {GroupId}.");
             await client.LargePersonGroup.TrainAsync(GroupId);
 
             // Wait until the training is completed.
             while (true)
             {
                 await Task.Delay(1000);
-                var status = await client.LargePersonGroup.GetTrainingStatusAsync(GroupId);
-                Console.WriteLine($"Response: Success. Group \"{GroupId}' training process is {status.Status}");
-                if (status.Status != TrainingStatusType.Running)
+                var trainingStatus = await client.LargePersonGroup.GetTrainingStatusAsync(GroupId);
+                Console.WriteLine($"Training status is {trainingStatus.Status}.");
+                if (trainingStatus.Status != TrainingStatusType.Running)
                 {
+                    if (trainingStatus.Status == TrainingStatusType.Failed)
+                    {
+                        throw new Exception($"Training failed with message {trainingStatus.Message}.");
+                    }
+
                     break;
                 }
             }

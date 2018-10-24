@@ -36,10 +36,10 @@
             }
 
             // Call grouping, the grouping result is a group collection, each group contains similar faces.
-            var groupRes = client.Face.GroupAsync(faceIds).Result;
+            var groupResult = client.Face.GroupAsync(faceIds).Result;
 
             // Grouping results.
-            foreach (var g in groupRes.Groups)
+            foreach (var g in groupResult.Groups)
             {
                 Console.Write($"{Environment.NewLine}Find group face: ");
                 foreach (var fr in g)
@@ -49,10 +49,10 @@
             }
 
             // MessyGroup contains all faces which are not similar to any other faces.
-            if (groupRes.MessyGroup.Count > 0)
+            if (groupResult.MessyGroup.Count > 0)
             {
                 Console.Write($"{Environment.NewLine}Find messy group face: ");
-                foreach (var fr in groupRes.MessyGroup)
+                foreach (var fr in groupResult.MessyGroup)
                 {
                     Console.Write($"{faces[fr.ToString()]}\t");
                 }
