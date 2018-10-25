@@ -172,7 +172,7 @@ namespace Verify
                 Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName1}`.");
                 if (detectedFaces[0].FaceId == null)
                 {
-                    Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for Identify purpose.");
+                    Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for verification purpose.");
                     return;
                 }
 
@@ -241,7 +241,7 @@ namespace Verify
                 Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName1}`.");
                 if (detectedFaces[0].FaceId == null)
                 {
-                    Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for Identify purpose.");
+                    Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for verification purpose.");
                     return;
                 }
 
