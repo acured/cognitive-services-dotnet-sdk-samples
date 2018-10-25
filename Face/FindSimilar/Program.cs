@@ -25,11 +25,8 @@ namespace FindSimilar
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Sample of finding similar faces in face ids.");
             FindSimilar_in_FaceIds().Wait();
-            Console.WriteLine("Sample of finding similar faces in face list.");
             FindSimilar_in_FaceList().Wait();
-            Console.WriteLine("Sample of finding similar faces in large face list.");
             FindSimilar_in_LargeFaceList().Wait();
 
             Console.WriteLine("\nPress ENTER to exit.");
@@ -38,6 +35,8 @@ namespace FindSimilar
 
         public static async Task FindSimilar_in_FaceIds()
         {
+            Console.WriteLine("Sample of finding similar faces in face ids.");
+
             IList<Guid?> targetFaceIds = new List<Guid?>();
             foreach (var targetImageFileName in TargetImageFileNames)
             {
@@ -100,6 +99,8 @@ namespace FindSimilar
 
         public static async Task FindSimilar_in_FaceList()
         {
+            Console.WriteLine("Sample of finding similar faces in face list.");
+
             // Create a face list.
             string faceListId = Guid.NewGuid().ToString();
             Console.WriteLine($"Create FaceList {faceListId}.");
@@ -171,6 +172,8 @@ namespace FindSimilar
 
         public static async Task FindSimilar_in_LargeFaceList()
         {
+            Console.WriteLine("Sample of finding similar faces in large face list.");
+
             // Create a large face list.
             string largeFaceListId = Guid.NewGuid().ToString();
             Console.WriteLine($"Create large face list {largeFaceListId}.");
