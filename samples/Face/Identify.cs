@@ -52,8 +52,7 @@
 
                         if (face == null)
                         {
-                            Console.WriteLine($"[Error] No persisted face from image `{targetImageFileName}`.");
-                            return;
+                            throw new Exception($"No persisted face from image `{targetImageFileName}`.");
                         }
                     }
                 }
@@ -151,8 +150,7 @@
 
                         if (face == null)
                         {
-                            Console.WriteLine($"[Error] No persisted face from image `{targetImageFileName}`.");
-                            return;
+                            throw new Exception($"No persisted face from image `{targetImageFileName}`.");
                         }
                     }
                 }

@@ -80,8 +80,7 @@
                     var faces = await client.FaceList.AddFaceFromStreamAsync(faceListId, stream, targetImageFileName);
                     if (faces == null)
                     {
-                        Console.WriteLine($"[Error] No face detected from image `{targetImageFileName}`.");
-                        return;
+                        throw new Exception($"No face detected from image `{targetImageFileName}`.");
                     }
 
                     Console.WriteLine($"Face from image {targetImageFileName} is successfully added to the face list.");
@@ -92,8 +91,7 @@
             List<PersistedFace> persistedFaces = (await client.FaceList.GetAsync(faceListId)).PersistedFaces.ToList();
             if (persistedFaces.Count == 0)
             {
-                Console.WriteLine($"[Error] No persisted face in face list '{ faceListId}'.");
-                return;
+                throw new Exception($"No persisted face in face list '{ faceListId}'.");
             }
 
             // Detect faces from source image file.
@@ -150,8 +148,7 @@
                     var faces = await client.LargeFaceList.AddFaceFromStreamAsync(largeFaceListId, stream, targetImageFileName);
                     if (faces == null)
                     {
-                        Console.WriteLine($"[Error] No face detected from image `{targetImageFileName}`.");
-                        return;
+                        throw new Exception($"No face detected from image `{targetImageFileName}`.");
                     }
 
                     Console.WriteLine($"Face from image {targetImageFileName} is successfully added to the large face list.");
@@ -172,8 +169,7 @@
                 {
                     if (trainingStatus.Status == TrainingStatusType.Failed)
                     {
-                        Console.WriteLine($"[Error] Training failed with message {trainingStatus.Message}.");
-                        return;
+                        throw new Exception($"Training failed with message {trainingStatus.Message}.");
                     }
 
                     break;
@@ -184,8 +180,7 @@
             List<PersistedFace> persistedFaces = (await client.LargeFaceList.ListFacesAsync(largeFaceListId)).ToList();
             if (persistedFaces.Count == 0)
             {
-                Console.WriteLine($"[Error] No persisted face in large face list '{ largeFaceListId}'.");
-                return;
+                throw new Exception($"No persisted face in large face list '{ largeFaceListId}'.");
             }
 
             // Detect faces from source image file.

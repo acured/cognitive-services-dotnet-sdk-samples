@@ -51,15 +51,13 @@
 
                     if (detectedFaces == null || detectedFaces.Count == 0)
                     {
-                        Console.WriteLine($"[Error] No face detected from image `{imageFileName}`.");
-                        return;
+                        throw new Exception($"No face detected from image `{imageFileName}`.");
                     }
 
                     Console.WriteLine($"{detectedFaces.Count} faces detected from image `{imageFileName}`.");
                     if (detectedFaces[0].FaceAttributes == null)
                     {
-                        Console.WriteLine("[Error] Parameter `returnFaceAttributes` of `DetectWithStreamAsync` must be set to get face attributes.");
-                        return;
+                        throw new Exception($"Parameter `returnFaceAttributes` of `DetectWithStreamAsync` must be set to get face attributes.");
                     }
 
                     // all attributes of faces 
