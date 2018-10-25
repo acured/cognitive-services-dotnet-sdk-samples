@@ -49,7 +49,7 @@ namespace Group
                     Console.WriteLine($"{detectedFaces.Count} faces detected from image `{imageFileName}`.");
                     if (detectedFaces[0].FaceId == null)
                     {
-                        Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for verification to grouping.");
+                        Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for grouping purpose.");
                         return;
                     }
 
@@ -63,9 +63,9 @@ namespace Group
             var groupResult = await client.Face.GroupAsync(faceIds);
 
             // Grouping results.
-            for (int i=0;i< groupResult.Groups.Count;i++)
-            { 
-                Console.Write($"Find face group {i+1}: ");
+            for (int i = 0; i < groupResult.Groups.Count; i++)
+            {
+                Console.Write($"Find face group {i + 1}: ");
                 foreach (var faceId in groupResult.Groups[i])
                 {
                     Console.Write($"{faces[faceId.ToString()]} ");
