@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
@@ -9,6 +10,14 @@ namespace Detection
     public class Program
     {
         public static void Main(string[] args)
+        {
+            Detect().Wait();
+
+            Console.WriteLine("\nPress ENTER to exit.");
+            Console.ReadLine();
+        }
+
+        public static async Task Detect()
         {
             // Create a client.
             string apiKey = "ENTER YOUR KEY HERE";
@@ -26,7 +35,7 @@ namespace Detection
                 using (FileStream stream = new FileStream(Path.Combine("Images", imageFileName), FileMode.Open))
                 {
                     // Detect faces with all attributes from image stream.
-                    IList<DetectedFace> detectedFaces = client.Face.DetectWithStreamAsync(
+                    IList<DetectedFace> detectedFaces = await client.Face.DetectWithStreamAsync(
                         stream,
                         false,
                         true,
@@ -46,7 +55,7 @@ namespace Detection
                             FaceAttributeType.Noise,
                             FaceAttributeType.Occlusion,
                             FaceAttributeType.Smile
-                        }).Result;
+                        });
 
                     if (detectedFaces == null || detectedFaces.Count == 0)
                     {
@@ -83,9 +92,6 @@ namespace Detection
                     }
                 }
             }
-
-            Console.WriteLine("\nPress ENTER to exit.");
-            Console.ReadLine();
         }
 
         private static string GetAccessories(IList<Accessory> accessories)
