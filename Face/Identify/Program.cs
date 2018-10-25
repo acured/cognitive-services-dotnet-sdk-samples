@@ -19,13 +19,13 @@ namespace Identify
 
         public static Dictionary<string, string[]> TargetImageFileDictionary = new Dictionary<string, string[]>
         {
-            { "Family1-Dad", new string[]{ "Family1-Dad1.jpg", "Family1-Dad2.jpg"}},
-            { "Family1-Mom",new string[] { "Family1-Mom1.jpg", "Family1-Mom2.jpg"}},
-            { "Family1-Son",new string[]{ "Family1-Son1.jpg", "Family1-Son2.jpg" }},
-            { "Family1-Daughter",new string[] { "Family1-Daughter1.jpg", "Family1-Daughter2.jpg"}},
-            { "Family2-Lady",new string[]{"Family2-Lady1.jpg", "Family2-Lady2.jpg"}},
-            { "Family2-Man",new string[] {"Family2-Man1.jpg","Family2-Man2.jpg" }
-        } };            
+            { "Family1-Dad", new[] { "Family1-Dad1.jpg", "Family1-Dad2.jpg" } },
+            { "Family1-Mom", new[] { "Family1-Mom1.jpg", "Family1-Mom2.jpg" } },
+            { "Family1-Son", new[] { "Family1-Son1.jpg", "Family1-Son2.jpg" } },
+            { "Family1-Daughter", new[] { "Family1-Daughter1.jpg", "Family1-Daughter2.jpg" } },
+            { "Family2-Lady", new[] { "Family2-Lady1.jpg", "Family2-Lady2.jpg" } },
+            { "Family2-Man", new[] { "Family2-Man1.jpg", "Family2-Man2.jpg" } }
+        };
 
         public static string SourceImageFileName = "identification1.jpg";
 
@@ -38,7 +38,7 @@ namespace Identify
             Console.ReadLine();
         }
 
-        public static async Task Identify_in_PersonGroup() 
+        public static async Task Identify_in_PersonGroup()
         {
             Console.WriteLine("Sample of Identify faces in person group.");
 
@@ -47,7 +47,7 @@ namespace Identify
             Console.WriteLine($"Create a person group ({personGroupId}).");
             await Client.PersonGroup.CreateAsync(personGroupId, personGroupId);
 
-            foreach (var targetImageFileDictionaryName in TargetImageFileDictionary.Keys) 
+            foreach (var targetImageFileDictionaryName in TargetImageFileDictionary.Keys)
             {
                 // Create a person group person.
                 Person p = new Person { Name = targetImageFileDictionaryName, UserData = "Person for sample" };
@@ -96,21 +96,21 @@ namespace Identify
             List<Guid> sourceFaceIds = new List<Guid>();
 
             // Read image file. 
-            using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName), FileMode.Open)) 
-            { 
+            using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName), FileMode.Open))
+            {
                 // Detect faces from image stream. 
-                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream); 
-                if (detectedFaces == null || detectedFaces.Count == 0) 
-                { 
-                    Console.WriteLine($"[Error] No face detected from image `{SourceImageFileName}`."); 
-                    return; 
-                } 
+                IList<DetectedFace> detectedFaces = await Client.Face.DetectWithStreamAsync(stream);
+                if (detectedFaces == null || detectedFaces.Count == 0)
+                {
+                    Console.WriteLine($"[Error] No face detected from image `{SourceImageFileName}`.");
+                    return;
+                }
 
-                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName}`."); 
-                if (detectedFaces[0].FaceId == null) 
-                { 
+                Console.WriteLine($"{detectedFaces.Count} faces detected from image `{SourceImageFileName}`.");
+                if (detectedFaces[0].FaceId == null)
+                {
                     Console.WriteLine("[Error] Parameter `returnFaceId` of `DetectWithStreamAsync` must be set to `true` (by default) for Identify purpose.");
-                    return; 
+                    return;
                 }
 
                 // Add detected faceId to faceIds.
@@ -133,7 +133,7 @@ namespace Identify
 
             foreach (var identifyResult in identifyResults)
             {
-                Person person = await Client.PersonGroupPerson.GetAsync(personGroupId, identifyResult.Candidates[0].PersonId);                
+                Person person = await Client.PersonGroupPerson.GetAsync(personGroupId, identifyResult.Candidates[0].PersonId);
                 Console.WriteLine($"Person '{person.Name}' is identified for faces in {SourceImageFileName}, confidence: {identifyResult.Candidates[0].Confidence}.");
             }
 
