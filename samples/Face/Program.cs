@@ -7,10 +7,8 @@
         static void Main(string[] args)
         {
             // Create a client.
-            //string apiKey = "ENTER YOUR KEY HERE";
-            //string endpoint = "ENTER YOUR ENDPOINT HERE";
-            string apiKey = "793315696cd04d5ab78232a792136610";
-            string endpoint = "https://westus.api.cognitive.microsoft.com";
+            string apiKey = "ENTER YOUR KEY HERE";
+            string endpoint = "ENTER YOUR ENDPOINT HERE";
 
             VerifyFaceToFace.Run(endpoint, apiKey).Wait();
             VerifyInPersonGroup.Run(endpoint, apiKey).Wait();
