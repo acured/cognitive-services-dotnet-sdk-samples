@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
@@ -8,7 +9,15 @@ namespace Detection
 {
     public class Program
     {
-        public static async void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            Detect().Wait();
+
+            Console.WriteLine("\nPress ENTER to exit.");
+            Console.ReadLine();
+        }
+
+        public static async Task Detect()
         {
             // Create a client.
             string apiKey = "ENTER YOUR KEY HERE";
@@ -83,9 +92,6 @@ namespace Detection
                     }
                 }
             }
-
-            Console.WriteLine("\nPress ENTER to exit.");
-            Console.ReadLine();
         }
 
         private static string GetAccessories(IList<Accessory> accessories)

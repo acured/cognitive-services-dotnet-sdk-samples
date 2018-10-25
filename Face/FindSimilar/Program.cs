@@ -25,8 +25,11 @@ namespace FindSimilar
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("Sample of finding similar faces in face ids.");
             FindSimilar_in_FaceIds().Wait();
+            Console.WriteLine("Sample of finding similar faces in face list.");
             FindSimilar_in_FaceList().Wait();
+            Console.WriteLine("Sample of finding similar faces in large face list.");
             FindSimilar_in_LargeFaceList().Wait();
 
             Console.WriteLine("\nPress ENTER to exit.");
@@ -91,6 +94,8 @@ namespace FindSimilar
                     Console.WriteLine($"Faces from {detectedFaces[0].FaceId} & {similarResult.FaceId} are similar with confidence: {similarResult.Confidence}.");
                 }
             }
+
+            Console.WriteLine();
         }
 
         public static async Task FindSimilar_in_FaceList()
@@ -161,6 +166,7 @@ namespace FindSimilar
             // Delete the face list.
             await Client.FaceList.DeleteAsync(faceListId);
             Console.WriteLine($"Delete FaceList {faceListId}.");
+            Console.WriteLine();
         }
 
         public static async Task FindSimilar_in_LargeFaceList()
@@ -253,6 +259,7 @@ namespace FindSimilar
             // Delete the large face list.
             await Client.LargeFaceList.DeleteAsync(largeFaceListId);
             Console.WriteLine($"Delete LargeFaceList {largeFaceListId}.");
+            Console.WriteLine();
         }
     }
 }

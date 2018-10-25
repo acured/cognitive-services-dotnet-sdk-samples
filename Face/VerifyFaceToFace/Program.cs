@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
@@ -8,7 +9,15 @@ namespace VerifyFaceToFace
 {
     public class Program
     {
-        public static async void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            Verify_FaceToFace().Wait();
+
+            Console.WriteLine("\nPress ENTER to exit.");
+            Console.ReadLine();
+        }
+
+        public static async Task Verify_FaceToFace()
         {
             // Create a client.
             string apiKey = "ENTER YOUR KEY HERE";
@@ -58,9 +67,6 @@ namespace VerifyFaceToFace
                 verifyResult2.IsIdentical
                     ? $"Faces from {imageFileNames[1]} & {imageFileNames[2]} are of the same (Negative) person, similarity confidence: {verifyResult2.Confidence}."
                     : $"Faces from {imageFileNames[1]} & {imageFileNames[2]} are of different (Positive) persons, similarity confidence: {verifyResult2.Confidence}.");
-
-            Console.WriteLine("\nPress ENTER to exit.");
-            Console.ReadLine();
         }
     }
 }
