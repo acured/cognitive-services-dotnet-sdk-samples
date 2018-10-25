@@ -10,9 +10,9 @@ namespace Verify
     public class Program
     {
         // Create a client. 
-        static string ApiKey = "ENTER YOUR KEY HERE";
+        public static string ApiKey = "ENTER YOUR KEY HERE";
 
-        static IFaceClient Client = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
+        public static IFaceClient Client = new FaceClient(new ApiKeyServiceClientCredentials(ApiKey))
         {
             Endpoint = "ENTER YOUR ENDPOINT HERE"
         };
@@ -36,13 +36,15 @@ namespace Verify
 
         public static async Task Verify_FaceToFace()
         {
+            Console.WriteLine("Sample of verify face to face.");
+
             List<Guid> targetFaceIds = new List<Guid>();
-            Guid sourceFaceId1 = new Guid();
-            Guid sourceFaceId2 = new Guid();
+            Guid sourceFaceId1;
+            Guid sourceFaceId2;
 
             foreach (var imageFileName in TargetImageFileNames)
             {
-                // Read image file.
+                // Read target image files.
                 using (FileStream stream = new FileStream(Path.Combine("Images", imageFileName), FileMode.Open))
                 {
                     // Detect faces from image stream.
@@ -64,7 +66,7 @@ namespace Verify
                 }
             }
 
-            // Read image file.
+            // Read source image file 1.
             using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName1), FileMode.Open))
             {
                 // Detect faces from image stream.
@@ -85,7 +87,7 @@ namespace Verify
                 sourceFaceId1 = detectedFaces[0].FaceId.Value;
             }
 
-            // Read image file.
+            // Read source image file 2.
             using (FileStream stream = new FileStream(Path.Combine("Images", SourceImageFileName2), FileMode.Open))
             {
                 // Detect faces from image stream.
@@ -105,8 +107,7 @@ namespace Verify
 
                 sourceFaceId2 = detectedFaces[0].FaceId.Value;
             }
-
-
+            
             // Verification example for faces of the same person.
             VerifyResult verifyResult1 = await Client.Face.VerifyFaceToFaceAsync(sourceFaceId1, targetFaceIds[0]);
             Console.WriteLine(
@@ -120,51 +121,38 @@ namespace Verify
                 verifyResult2.IsIdentical
                     ? $"Faces from {SourceImageFileName2} & {TargetImageFileNames[0]} are of the same (Negative) person, similarity confidence: {verifyResult2.Confidence}."
                     : $"Faces from {SourceImageFileName2} & {TargetImageFileNames[0]} are of different (Positive) persons, similarity confidence: {verifyResult2.Confidence}.");
+
+            Console.WriteLine();
         }
 
         public static async Task Verify_in_PersonGroup()
         {
+            Console.WriteLine("Sample of verify face to person group.");
+
             // Create a person group.
-            string GroupId = Guid.NewGuid().ToString();
-            Console.WriteLine($"Create a person group ({GroupId}) {Environment.NewLine}");
-            await Client.PersonGroup.CreateAsync(GroupId, GroupId);
+            string personGroupId = Guid.NewGuid().ToString();
+            Console.WriteLine($"Create a person group ({personGroupId}).");
+            await Client.PersonGroup.CreateAsync(personGroupId, personGroupId);
 
             // Create a person group person.
-            Person p = new Person();
-            p.Name = "Dad";
-            p.UserData = "Person for sample";
-            Console.WriteLine($"Create a person group person '{p.Name}' {Environment.NewLine}");
-            p.PersonId = (await Client.PersonGroupPerson.CreateAsync(GroupId, p.Name)).PersonId;
+            Person p = new Person { Name = "Dad", UserData = "Person for sample" };
+            Console.WriteLine($"Create a person group person '{p.Name}'.");
+            p.PersonId = (await Client.PersonGroupPerson.CreateAsync(personGroupId, p.Name)).PersonId;
 
             foreach (var targetImageFileName in TargetImageFileNames)
             {
-                // Read image file. 
+                // Read target image files.
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
                 {
                     // Add face to the person group. 
-                    Console.WriteLine($"Add faces to the person group from image `{targetImageFileName}`.");
-                    PersistedFace faces = await Client.PersonGroupPerson.AddFaceFromStreamAsync(GroupId, p.PersonId, stream, targetImageFileName);
+                    Console.WriteLine($"Add face to the person group person({p.Name}) from image `{targetImageFileName}`.");
+                    PersistedFace faces = await Client.PersonGroupPerson.AddFaceFromStreamAsync(personGroupId, p.PersonId, stream, targetImageFileName);
 
                     if (faces == null)
                     {
                         Console.WriteLine($"[Error] No persisted face from image `{targetImageFileName}`.");
                         return;
                     }
-                }
-            }
-
-            // Start to train the person group.
-            await Client.PersonGroup.TrainAsync(GroupId);
-
-            // Wait until the training is completed.
-            while (true)
-            {
-                await Task.Delay(1000);
-                var status = await Client.PersonGroup.GetTrainingStatusAsync(GroupId);
-                Console.WriteLine($"Response: Success. Group \"{GroupId}' training process is {status.Status}");
-                if (status.Status != TrainingStatusType.Running)
-                {
-                    break;
                 }
             }
 
@@ -193,60 +181,47 @@ namespace Verify
             }
 
             // Verification example for faces of the same person.
-            VerifyResult VerifyResults = await Client.Face.VerifyFaceToPersonAsync(faceIds[0], p.PersonId, GroupId);
+            VerifyResult verifyResult = await Client.Face.VerifyFaceToPersonAsync(faceIds[0], p.PersonId, personGroupId);
             Console.WriteLine(
-                VerifyResults.IsIdentical
-                    ? $"Faces from {SourceImageFileName1} & {p.Name} are of the same (Positive) person, similarity confidence: {VerifyResults.Confidence}."
-                    : $"Faces from {SourceImageFileName1} & {p.Name} are of different (Negative) persons, similarity confidence: {VerifyResults.Confidence}.");
+                verifyResult.IsIdentical
+                    ? $"Faces from {SourceImageFileName1} & {p.Name} are of the same (Positive) person, similarity confidence: {verifyResult.Confidence}."
+                    : $"Faces from {SourceImageFileName1} & {p.Name} are of different (Negative) persons, similarity confidence: {verifyResult.Confidence}.");
 
             // Delete the person group.
-            Console.WriteLine($"{Environment.NewLine}Delete the person group ({GroupId})");
-            await Client.PersonGroup.DeleteAsync(GroupId);
+            Console.WriteLine($"Delete the person group ({personGroupId}).");
+            await Client.PersonGroup.DeleteAsync(personGroupId);
+
+            Console.WriteLine();
         }
 
         public static async Task Verify_in_LargePersonGroup()
         {
+            Console.WriteLine("Sample of verify face to large person group.");
+
             // Create a large person group.
-            string GroupId = Guid.NewGuid().ToString();
-            Console.WriteLine($"Create a large person group ({GroupId}) {Environment.NewLine}");
-            await Client.LargePersonGroup.CreateAsync(GroupId, GroupId);
+            string largePersonGroupId = Guid.NewGuid().ToString();
+            Console.WriteLine($"Create a large person group ({largePersonGroupId}).");
+            await Client.LargePersonGroup.CreateAsync(largePersonGroupId, largePersonGroupId);
 
             // Create a large person group person.
-            Person p = new Person();
-            p.Name = "Dad";
-            p.UserData = "Person for sample";
-            Console.WriteLine($"Create a large person group person '{p.Name}' {Environment.NewLine}");
-            p.PersonId = (await Client.LargePersonGroupPerson.CreateAsync(GroupId, p.Name)).PersonId;
+            Person p = new Person { Name = "Dad", UserData = "Person for sample" };
+            Console.WriteLine($"Create a large person group person '{p.Name}'.");
+            p.PersonId = (await Client.LargePersonGroupPerson.CreateAsync(largePersonGroupId, p.Name)).PersonId;
 
             foreach (var targetImageFileName in TargetImageFileNames)
             {
-                // Read image file. 
+                // Read target image files.
                 using (FileStream stream = new FileStream(Path.Combine("Images", targetImageFileName), FileMode.Open))
                 {
                     // Add face to the large person group. 
-                    Console.WriteLine($"Add faces to the large person group from image `{targetImageFileName}`.");
-                    PersistedFace faces = await Client.LargePersonGroupPerson.AddFaceFromStreamAsync(GroupId, p.PersonId, stream, targetImageFileName);
+                    Console.WriteLine($"Add face to the large person group person({p.Name}) from image {targetImageFileName}.");
+                    PersistedFace faces = await Client.LargePersonGroupPerson.AddFaceFromStreamAsync(largePersonGroupId, p.PersonId, stream, targetImageFileName);
 
                     if (faces == null)
                     {
                         Console.WriteLine($"[Error] No persisted face from image `{targetImageFileName}`.");
                         return;
                     }
-                }
-            }
-
-            // Start to train the large person group.
-            await Client.LargePersonGroup.TrainAsync(GroupId);
-
-            // Wait until the training is completed.
-            while (true)
-            {
-                await Task.Delay(1000);
-                var status = await Client.LargePersonGroup.GetTrainingStatusAsync(GroupId);
-                Console.WriteLine($"Response: Success. Group \"{GroupId}' training process is {status.Status}");
-                if (status.Status != TrainingStatusType.Running)
-                {
-                    break;
                 }
             }
 
@@ -275,15 +250,17 @@ namespace Verify
             }
 
             // Verification example for faces of the same person.
-            VerifyResult VerifyResults = await Client.Face.VerifyFaceToPersonAsync(faceIds[0], p.PersonId, null, GroupId);
+            VerifyResult verifyResult = await Client.Face.VerifyFaceToPersonAsync(faceIds[0], p.PersonId, null, largePersonGroupId);
             Console.WriteLine(
-                VerifyResults.IsIdentical
-                    ? $"Faces from {SourceImageFileName1} & {p.Name} are of the same (Positive) person, similarity confidence: {VerifyResults.Confidence}."
-                    : $"Faces from {SourceImageFileName1} & {p.Name} are of different (Negative) persons, similarity confidence: {VerifyResults.Confidence}.");
+                verifyResult.IsIdentical
+                    ? $"Faces from {SourceImageFileName1} & {p.Name} are of the same (Positive) person, similarity confidence: {verifyResult.Confidence}."
+                    : $"Faces from {SourceImageFileName1} & {p.Name} are of different (Negative) persons, similarity confidence: {verifyResult.Confidence}.");
 
             // Delete the large person group.
-            Console.WriteLine($"{Environment.NewLine}Delete the large person group ({GroupId})");
-            await Client.LargePersonGroup.DeleteAsync(GroupId);
+            Console.WriteLine($"Delete the large person group ({largePersonGroupId}).");
+            await Client.LargePersonGroup.DeleteAsync(largePersonGroupId);
+
+            Console.WriteLine();
         }
     }
 }
