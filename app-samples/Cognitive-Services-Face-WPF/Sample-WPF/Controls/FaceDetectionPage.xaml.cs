@@ -51,7 +51,7 @@ namespace Microsoft.ProjectOxford.Face.Controls
     /// </summary>
     public partial class FaceDetectionPage : Page, INotifyPropertyChanged
     {
-        
+
         #region Fields
 
         /// <summary>
